@@ -1,13 +1,7 @@
-#include <DHT.h> 
 #include <SPI.h>
-#include <SD.h>
 #include <Wire.h>
 #include "RTClib.h"
-#include <Servo.h>
-
-#define DHTPIN 8                        
-#define DHTTYPE DHT22                   
-DHT dht(DHTPIN, DHTTYPE);               
+#include <Servo.h>              
 
 const int chipSelect = 10;              
 RTC_DS1307 RTC;
@@ -30,8 +24,6 @@ int rotorStop = 135;
 int focus = 7;
 int shot = 4;
 int light = 2;
-
-int counter = 1;
 
 const int waterSens = A0;
 const int buzz = 3;
@@ -79,14 +71,14 @@ void loop() {
   rotor.write(posRotor);
   delay(50);
   
-  // raise hand
+  // raise robotic arm
   for (int i = 0; i < 10; i++) {
     posRight -= 1;
     right.write(posRight);
     delay(servoDelay);
   }
   
-  // raise hand
+  // raise robotic arm
   for (; posRight >= rightStop; posRight -= 1) {           
     right.write(posRight);
     if (posRight % 2 == 0) { 
@@ -100,17 +92,14 @@ void loop() {
   right.detach();
   left.detach();
   
-  // rotate open hand
+  // rotate opened arm
   for (; posRotor <= rotorStop; posRotor += 1) {           
         rotor.write(posRotor);
         delay(servoDelay);
   }
   delay(1000);
   
-  pickUpTemperature();
-  counter++;
-  
-  // take image
+  // take the photo
   digitalWrite(focus, HIGH);
   delay(1000);
   digitalWrite(shot, HIGH);
@@ -121,7 +110,7 @@ void loop() {
   
   delay(1000);
   
-  // rotate close handa
+  // rotate back opened arm
   for (; posRotor >= rotorStart; posRotor -= 1) {
     rotor.write(posRotor);
     delay(servoDelay);
@@ -132,7 +121,7 @@ void loop() {
   left.attach(5);
   delay(1000);
   
-  // lower hand
+  // lower robotic arm
   for (; posRight <= (rightStart - 10); posRight += 1) {           
     right.write(posRight);
     if (posRight % 2 == 0) { 
@@ -142,7 +131,7 @@ void loop() {
     delay(servoDelay);
   }
   
-  // lower hand
+  // lower robotic arm
   for (int i = 0; i < 10; i++) {
     posRight += 1;
     right.write(posRight);
@@ -154,10 +143,12 @@ void loop() {
   right.detach();
   left.detach();
   delay(1000);
-  // turn of light
+  
+  // turn light off
   digitalWrite(light, HIGH);
 
  
+  // check water level
   digitalWrite(relay, LOW);
   delay(1000);
   
